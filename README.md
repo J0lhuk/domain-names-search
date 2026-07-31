@@ -10,7 +10,7 @@ CLI для проверки списка имён в нескольких дом
 python -m domain_checker.cli check
 ```
 
-Зоны по умолчанию: `ru,com`. Их можно изменить: `python -m domain_checker.cli check --zones ru,com,net,io`.
+Зона по умолчанию: `ru`, чтобы экономить квоту GoDaddy. При необходимости зоны можно расширить: `python -m domain_checker.cli check --zones ru,com,net,io`.
 
 ## Что именно означает результат
 
@@ -72,8 +72,8 @@ GoDaddy-проверка использует read-only `GET /v3/domains/check-a
 
 ```text
 domain-checker check                         # names.txt -> result.txt
-domain-checker check --input NAMES --zones ru,com
-domain-checker resume --input NAMES --zones ru,com
+domain-checker check --input NAMES --zones ru
+domain-checker resume --input NAMES --zones ru
 domain-checker export --output results
 domain-checker providers --config config.yaml
 domain-checker validate-config --config config.yaml

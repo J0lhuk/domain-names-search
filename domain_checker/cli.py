@@ -75,7 +75,7 @@ async def _run_check(input_path: Path, zones: str, output: Path, config: Path | 
 @app.command()
 def check(
     input_path: Annotated[Path, typer.Option("--input", exists=True, readable=True)] = Path("names.txt"),
-    zones: Annotated[str, typer.Option("--zones", help="Comma-separated TLDs for base names")] = "ru,com",
+    zones: Annotated[str, typer.Option("--zones", help="Comma-separated TLDs for base names")] = "ru",
     output: Annotated[Path, typer.Option("--output")] = Path("results"),
     config: Annotated[Path | None, typer.Option("--config", exists=True, readable=True)] = None,
     offline_fixtures: Annotated[Path | None, typer.Option("--offline-fixtures", exists=True, readable=True)] = None,
@@ -90,7 +90,7 @@ def check(
 @app.command()
 def resume(
     input_path: Annotated[Path, typer.Option("--input", exists=True, readable=True)] = Path("names.txt"),
-    zones: Annotated[str, typer.Option("--zones")] = "ru,com",
+    zones: Annotated[str, typer.Option("--zones")] = "ru",
     output: Annotated[Path, typer.Option("--output")] = Path("results"),
     config: Annotated[Path | None, typer.Option("--config", exists=True, readable=True)] = None,
     offline_fixtures: Annotated[Path | None, typer.Option("--offline-fixtures", exists=True, readable=True)] = None,
