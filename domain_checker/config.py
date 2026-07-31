@@ -8,9 +8,9 @@ from pydantic import BaseModel, Field
 
 
 class RegistrarConfig(BaseModel):
-    kind: str = "generic"
-    endpoint_env: str = "DOMAIN_CHECKER_REGISTRAR_URL"
-    token_env: str = "DOMAIN_CHECKER_REGISTRAR_TOKEN"
+    kind: str = "godaddy"
+    endpoint_env: str = "GODADDY_AVAILABILITY_URL"
+    token_env: str = "GODADDY_PAT"
 
     @property
     def endpoint(self) -> str | None:
