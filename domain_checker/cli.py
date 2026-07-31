@@ -24,7 +24,11 @@ def _names(path: Path) -> list[str]:
             if not reader.fieldnames or "name" not in reader.fieldnames:
                 raise typer.BadParameter("CSV must contain a 'name' column")
             return [row["name"] for row in reader if row.get("name")]
-    return path.read_text(encoding="utf-8").splitlines()
+    return [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
 
 
 def _fixtures(path: Path | None) -> dict[str, dict[str, str]] | None:
@@ -58,12 +62,19 @@ async def _run_check(input_path: Path, zones: str, output: Path, config: Path | 
     summary: dict[str, int] = {}
     for result in results:
         summary[result.availability_status] = summary.get(result.availability_status, 0) + 1
+    free_domains = sorted(
+        result.domain_unicode
+        for result in results
+        if result.availability_status.value == "available"
+    )
+    result_file = Path("result.txt")
+    result_file.write_text("\n".join(free_domains) + ("\n" if free_domains else ""), encoding="utf-8")
     typer.echo(json.dumps({"checked": len(results), "summary": summary, "csv": str(csv_path), "json": str(json_path)}, ensure_ascii=False))
 
 
 @app.command()
 def check(
-    input_path: Annotated[Path, typer.Option("--input", exists=True, readable=True)],
+    input_path: Annotated[Path, typer.Option("--input", exists=True, readable=True)] = Path("names.txt"),
     zones: Annotated[str, typer.Option("--zones", help="Comma-separated TLDs for base names")] = "ru,com",
     output: Annotated[Path, typer.Option("--output")] = Path("results"),
     config: Annotated[Path | None, typer.Option("--config", exists=True, readable=True)] = None,
@@ -78,7 +89,7 @@ def check(
 
 @app.command()
 def resume(
-    input_path: Annotated[Path, typer.Option("--input", exists=True, readable=True)],
+    input_path: Annotated[Path, typer.Option("--input", exists=True, readable=True)] = Path("names.txt"),
     zones: Annotated[str, typer.Option("--zones")] = "ru,com",
     output: Annotated[Path, typer.Option("--output")] = Path("results"),
     config: Annotated[Path | None, typer.Option("--config", exists=True, readable=True)] = None,

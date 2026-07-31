@@ -2,6 +2,16 @@
 
 CLI для проверки списка имён в нескольких доменных зонах. Он не подменяет отсутствие ответа записью «свободен»: отдельно хранит состояние реестра, ответ регистратора и исторические следы.
 
+## Режим `names.txt` → `result.txt`
+
+Если запускать команду из корня проекта без параметра `--input`, она построчно читает `names.txt`. Пустые строки пропускаются. В корне проекта создаётся или полностью перезаписывается `result.txt`: туда попадают только домены со статусом `availability_status=available`, по одному домену на строку. Премиальные, занятые, зарезервированные и неопределённые варианты в этот файл не попадают.
+
+```powershell
+python -m domain_checker.cli check
+```
+
+Зоны по умолчанию: `ru,com`. Их можно изменить: `python -m domain_checker.cli check --zones ru,com,net,io`.
+
 ## Что именно означает результат
 
 | Поле | Значение |
@@ -61,6 +71,7 @@ $env:DOMAIN_CHECKER_REGISTRAR_TOKEN = '...'
 ## Команды
 
 ```text
+domain-checker check                         # names.txt -> result.txt
 domain-checker check --input NAMES --zones ru,com
 domain-checker resume --input NAMES --zones ru,com
 domain-checker export --output results

@@ -1,0 +1,2 @@
+# Put one base name or full domain per line.
+# Example: chat  (will be checked as chat.ru and chat.com)
