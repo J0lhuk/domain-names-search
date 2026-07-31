@@ -72,6 +72,11 @@ class Checker:
         fixture = self.offline.get(domain, {})
         if fixture:
             return AvailabilityResult(status=AvailabilityStatus(fixture.get("availability_status", "unknown")), source="offline_fixture", detail="offline fixture")
+        # GoDaddy's availability endpoint returns false for .ru even when the
+        # authoritative TCI WHOIS says "No entries found". Do not spend quota
+        # or treat that response as a registration result for RU/RF.
+        if domain.endswith((".ru", ".xn--p1ai")) and self.settings.registrar.kind.lower() == "godaddy":
+            return AvailabilityResult(status=AvailabilityStatus.UNKNOWN, source="tci_whois", detail="availability derived from authoritative RU/RF WHOIS")
         return await self.registrar.check(domain)
 
     async def check_one(self, item: NormalizedDomain, force_refresh: bool = False) -> DomainResult:
@@ -80,6 +85,12 @@ class Checker:
             if saved:
                 return saved
         registry, availability = await asyncio.gather(self.registry_lookup(item.ascii), self.availability_lookup(item.ascii))
+        if (
+            item.ascii.endswith((".ru", ".xn--p1ai"))
+            and registry.status == RegistryStatus.NOT_FOUND
+            and availability.source == "tci_whois"
+        ):
+            availability = AvailabilityResult(status=AvailabilityStatus.AVAILABLE, source="tci_whois", detail="official TCI WHOIS returned No entries found")
         status, confidence, conflict, evidence = reconcile(registry, availability)
         now = datetime.now(UTC)
         history_status = HistoryStatus.NOT_CHECKED
