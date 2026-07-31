@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import asyncio
+import time
+
 import httpx
 
 from ..models import AvailabilityResult, AvailabilityStatus
@@ -16,9 +19,20 @@ class GoDaddyRegistrarProvider:
 
     def __init__(self, client: httpx.AsyncClient, endpoint: str, token: str) -> None:
         self.client, self.endpoint, self.token = client, endpoint, token
+        self._rate_lock = asyncio.Lock()
+        self._next_request_at = 0.0
+
+    async def _throttle(self) -> None:
+        async with self._rate_lock:
+            now = time.monotonic()
+            delay = self._next_request_at - now
+            if delay > 0:
+                await asyncio.sleep(delay)
+            self._next_request_at = time.monotonic() + (60.0 / 55.0)
 
     async def check(self, domain: str) -> AvailabilityResult:
         try:
+            await self._throttle()
             response = await request_with_retry(
                 lambda: self.client.get(
                     self.endpoint,
