@@ -71,3 +71,11 @@ async def test_godaddy_available_and_price() -> None:
     assert result.status.value == "available"
     assert result.price == 11.99
     assert result.currency == "USD"
+
+
+@pytest.mark.asyncio
+async def test_godaddy_false_is_not_proof_of_registration() -> None:
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={"domain": "maybe.ru", "available": False}))
+    async with httpx.AsyncClient(transport=transport) as client:
+        result = await GoDaddyRegistrarProvider(client, "https://api.godaddy.test/check", "test-token").check("maybe.ru")
+    assert result.status.value == "unknown"

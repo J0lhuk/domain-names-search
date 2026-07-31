@@ -47,7 +47,7 @@ class GoDaddyRegistrarProvider:
         if not isinstance(data, dict):
             return AvailabilityResult(status=AvailabilityStatus.UNKNOWN, source="godaddy", detail="unexpected response")
         if data.get("available") is not True:
-            return AvailabilityResult(status=AvailabilityStatus.REGISTERED, source="godaddy", detail="GoDaddy reports unavailable")
+            return AvailabilityResult(status=AvailabilityStatus.UNKNOWN, source="godaddy", detail="GoDaddy reports unavailable or unsupported")
         prices = data.get("prices")
         first_price = prices[0] if isinstance(prices, list) and prices and isinstance(prices[0], dict) else {}
         price_data = first_price.get("price", {}) if isinstance(first_price, dict) else {}
