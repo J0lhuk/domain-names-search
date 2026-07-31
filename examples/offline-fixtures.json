@@ -1,0 +1,8 @@
+{
+  "chat.com": {"registry_status": "registered", "availability_status": "registered"},
+  "chat.ru": {"registry_status": "not_found", "availability_status": "available"},
+  "livesupport.com": {"registry_status": "not_found", "availability_status": "premium_available"},
+  "livesupport.ru": {"registry_status": "not_found", "availability_status": "reserved"},
+  "helpdesk.com": {"registry_status": "unknown", "availability_status": "unknown"},
+  "helpdesk.ru": {"registry_status": "not_found", "availability_status": "available"}
+}

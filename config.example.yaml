@@ -1,0 +1,14 @@
+user_agent: "domain-availability-checker/0.1 contact=you@example.com"
+concurrency: 8
+cache_ttl_seconds: 86400
+registrar:
+  # A compatible registrar endpoint must accept POST JSON {"domain": "example.com"}
+  # and return {"status": "available|premium|registered|reserved", "price": 12.0,
+  # "currency": "USD"}. Credentials belong in environment variables.
+  endpoint_env: DOMAIN_CHECKER_REGISTRAR_URL
+  token_env: DOMAIN_CHECKER_REGISTRAR_TOKEN
+history:
+  wayback: true
+  certificate_transparency: false
+  historical_whois_endpoint_env: DOMAIN_CHECKER_HISTORICAL_WHOIS_URL
+  historical_whois_token_env: DOMAIN_CHECKER_HISTORICAL_WHOIS_TOKEN

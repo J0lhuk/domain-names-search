@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+.pytest-tmp/
+.mypy_cache/
+.ruff_cache/
+.venv/
+*.sqlite3
+results/
+.tmp-results*/
+.env
