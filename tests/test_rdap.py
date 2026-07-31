@@ -4,6 +4,7 @@ import pytest
 from domain_checker.models import RegistryStatus
 from domain_checker.providers.iana import IanaBootstrapProvider
 from domain_checker.providers.rdap import RdapProvider
+from domain_checker.providers.registrar import GoDaddyRegistrarProvider
 
 
 @pytest.mark.asyncio
@@ -58,3 +59,15 @@ async def test_rdap_malformed_json_is_unknown() -> None:
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         result = await RdapProvider(client, IanaBootstrapProvider(client)).lookup("broken.com")
     assert result.status == RegistryStatus.UNKNOWN
+
+
+@pytest.mark.asyncio
+async def test_godaddy_available_and_price() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["Authorization"] == "Bearer test-token"
+        return httpx.Response(200, json={"domain": "free.com", "available": True, "prices": [{"price": {"value": 1199, "currencyCode": "USD"}}]})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        result = await GoDaddyRegistrarProvider(client, "https://api.godaddy.test/v3/domains/check-availability", "test-token").check("free.com")
+    assert result.status.value == "available"
+    assert result.price == 11.99
+    assert result.currency == "USD"

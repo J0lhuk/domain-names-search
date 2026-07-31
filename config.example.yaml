@@ -2,11 +2,13 @@ user_agent: "domain-availability-checker/0.1 contact=you@example.com"
 concurrency: 8
 cache_ttl_seconds: 86400
 registrar:
-  # A compatible registrar endpoint must accept POST JSON {"domain": "example.com"}
+  # Set kind to godaddy to use GoDaddy Domains v3 directly.
+  kind: godaddy
+  endpoint_env: GODADDY_AVAILABILITY_URL
+  token_env: GODADDY_PAT
+  # A generic endpoint must accept POST JSON {"domain": "example.com"}
   # and return {"status": "available|premium|registered|reserved", "price": 12.0,
   # "currency": "USD"}. Credentials belong in environment variables.
-  endpoint_env: DOMAIN_CHECKER_REGISTRAR_URL
-  token_env: DOMAIN_CHECKER_REGISTRAR_TOKEN
 history:
   wayback: true
   certificate_transparency: false

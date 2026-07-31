@@ -114,14 +114,16 @@ def export(output: Annotated[Path, typer.Option("--output", exists=True, file_ok
 def providers_command(config: Annotated[Path | None, typer.Option("--config", exists=True, readable=True)] = None) -> None:
     """Show enabled providers without making network requests."""
     settings = load_settings(config)
-    typer.echo(json.dumps({"registry": ["IANA RDAP", "RU/RF official WHOIS fallback"], "registrar": "configured" if settings.registrar.endpoint else "not configured", "history": {"historical_whois": bool(settings.history.historical_whois_endpoint), "wayback": settings.history.wayback, "certificate_transparency": settings.history.certificate_transparency}}, ensure_ascii=False, indent=2))
+    registrar_configured = bool(settings.registrar.token) and (settings.registrar.kind.lower() == "godaddy" or bool(settings.registrar.endpoint))
+    typer.echo(json.dumps({"registry": ["IANA RDAP", "RU/RF official WHOIS fallback"], "registrar": settings.registrar.kind if registrar_configured else "not configured", "history": {"historical_whois": bool(settings.history.historical_whois_endpoint), "wayback": settings.history.wayback, "certificate_transparency": settings.history.certificate_transparency}}, ensure_ascii=False, indent=2))
 
 
 @app.command("validate-config")
 def validate_config(config: Annotated[Path, typer.Option("--config", exists=True, readable=True)]) -> None:
     """Validate YAML structure and report only safe configuration state."""
     settings = load_settings(config)
-    typer.echo(f"Configuration valid; concurrency={settings.concurrency}; registrar_configured={bool(settings.registrar.endpoint)}")
+    registrar_configured = bool(settings.registrar.token) and (settings.registrar.kind.lower() == "godaddy" or bool(settings.registrar.endpoint))
+    typer.echo(f"Configuration valid; concurrency={settings.concurrency}; registrar={settings.registrar.kind}; registrar_configured={registrar_configured}")
 
 
 if __name__ == "__main__":

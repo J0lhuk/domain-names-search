@@ -15,7 +15,7 @@ from .models import (
     RegistryStatus,
 )
 from .normalization import NormalizedDomain
-from .providers.base import HistoryProvider
+from .providers.base import AvailabilityProvider, HistoryProvider
 from .providers.history import (
     CertificateTransparencyProvider,
     HistoricalWhoisProvider,
@@ -24,7 +24,11 @@ from .providers.history import (
 )
 from .providers.iana import IanaBootstrapProvider
 from .providers.rdap import RdapProvider
-from .providers.registrar import GenericRegistrarProvider, NoRegistrarProvider
+from .providers.registrar import (
+    GenericRegistrarProvider,
+    GoDaddyRegistrarProvider,
+    NoRegistrarProvider,
+)
 from .providers.whois_ru import RuWhoisProvider
 from .reconciliation import reconcile
 from .storage import ResultStore
@@ -36,7 +40,18 @@ class Checker:
         bootstrap = IanaBootstrapProvider(client, settings.cache_ttl_seconds)
         self.rdap = RdapProvider(client, bootstrap)
         self.ru_whois = RuWhoisProvider()
-        self.registrar = GenericRegistrarProvider(client, settings.registrar.endpoint, settings.registrar.token) if settings.registrar.endpoint else NoRegistrarProvider()
+        registrar_kind = settings.registrar.kind.lower()
+        self.registrar: AvailabilityProvider
+        if registrar_kind == "godaddy" and settings.registrar.token:
+            self.registrar = GoDaddyRegistrarProvider(
+                client,
+                settings.registrar.endpoint or "https://api.godaddy.com/v3/domains/check-availability",
+                settings.registrar.token,
+            )
+        elif settings.registrar.endpoint:
+            self.registrar = GenericRegistrarProvider(client, settings.registrar.endpoint, settings.registrar.token)
+        else:
+            self.registrar = NoRegistrarProvider()
         self.history: list[HistoryProvider] = [HistoricalWhoisProvider(client, settings.history.historical_whois_endpoint, settings.history.historical_whois_token)]
         if settings.history.wayback:
             self.history.append(WaybackProvider(client))

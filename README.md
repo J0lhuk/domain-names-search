@@ -57,14 +57,14 @@ python -m domain_checker.cli resume --input examples\names.txt --zones ru,com --
 
 ## Реальные запросы
 
-Без настроенного registrar API итоговая возможность покупки будет `unknown`; это корректное безопасное поведение. Укажите endpoint и имена переменных окружения в `config.yaml`, а сами значения поместите в пользовательские environment variables:
+Для GoDaddy укажите в `config.yaml` `kind: godaddy`, затем создайте Personal Access Token в [GoDaddy Developer Portal](https://developer.godaddy.com/en/docs/api-users) со scope `domains.domain:read`. Сами значения держите только в environment variables:
 
 ```powershell
-$env:DOMAIN_CHECKER_REGISTRAR_URL = 'https://registrar.example/api/domain-check'
-$env:DOMAIN_CHECKER_REGISTRAR_TOKEN = '...'
+$env:GODADDY_PAT = 'ваш-новый-token'
+$env:GODADDY_AVAILABILITY_URL = 'https://api.godaddy.com/v3/domains/check-availability'
 ```
 
-Поддерживаемый контракт адаптера: POST `{"domain":"example.com"}`, ответ `{"status":"available|premium|registered|reserved|unsupported_tld","price":12.0,"currency":"USD"}`. Перед подключением конкретного регистратора нужно сверить этот маппинг с его актуальной официальной документацией. Скрипт не создаёт регистрацию и не выполняет платные действия.
+GoDaddy-проверка использует read-only `GET /v3/domains/check-availability`; она возвращает доступность и ориентировочную цену и не регистрирует домен. Для другого регистратора доступен generic-адаптер: его endpoint должен принимать POST `{"domain":"example.com"}` и возвращать `{"status":"available|premium|registered|reserved|unsupported_tld","price":12.0,"currency":"USD"}`.
 
 История подключается независимо. Wayback включён по умолчанию, Certificate Transparency отключён, historical WHOIS работает только при легальном API-источнике и его ключе. Самая ранняя web/CT/DNS дата — лишь наблюдение, а не «первая регистрация».
 

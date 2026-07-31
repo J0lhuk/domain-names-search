@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class RegistrarConfig(BaseModel):
+    kind: str = "generic"
     endpoint_env: str = "DOMAIN_CHECKER_REGISTRAR_URL"
     token_env: str = "DOMAIN_CHECKER_REGISTRAR_TOKEN"
 
